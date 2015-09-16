@@ -14,84 +14,48 @@ http://dev.xiaomi.com/docs/passport/user_guide/
 
 ### DEMO
 #### 1.  获取授权URL DEMO
-```java
-    public static void main(String[] args) {
-        long cid = 179887661252608l;
-        String cs = "";
-        String uri = "http://xiaomi.com";
-        //
-        XMHttpClient xmHttpClient = new com.xiaomi.api.http.XMHttpClient();
-        XMOAuthHttpClient hc = new XMOAuthHttpClient(cid, cs, uri, hc);
-        String url = xmoAuthHttpClient.getAuthorizeUrl();
-        System.err.println("授权url:" + url);
-    }
+```PHP
+    参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getCode.php
 ```
 复制授权url到浏览器, 输入用户名密码, 浏览器跳转到http://xiaomi.com?code=code-value
 复制code-value作为步骤2的输入
 #### 2.  获取accessToken DEMO
-```java
-    public static void main(String[] args) throws XMException, URISyntaxException {
-        long cid = 179887661252608l;
-        String cs = "xxxxx";
-        String uri = "http://xiaomi.com";
-        String codeValue = "code-value";
-        //
-        XMHttpClient hc = new com.xiaomi.api.http.XMHttpClient();
-        XMOAuthHttpClient xmoAuthHttpClient = new XMOAuthHttpClient(cid, cs, uri, hc);
-        AccessToken token = xmoAuthHttpClient.getAccessTokenByAuthorizationCode(codeValue);
-    }
+```php
+  参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getToken.php
 ```
-    
-AccessToken包括如下信息:
-```java
-    protected String accessTokenId;
-    protected String refreshToken;
-    protected String scope;
-    protected long expiresIn;
-    protected String tokenType;
-    protected String macKey;
-    protected String macAlgorithm;
-```
-    
 #### 3.  通过refreshToken 换取 accessToken DEMO
 ```java
-    public static void main(String[] args) throws XMException, URISyntaxException {
-        long cId = 179887661252608l;
-        String cs = "xxxxx";
-        String uri = "http://xiaomi.com";
-        String refreshToken = "code-value";
-        //
-        XMHttpClient hc = new com.xiaomi.api.http.XMHttpClient();
-        XMOAuthHttpClient xmoAuthHttpClient = new XMOAuthHttpClient(cId, cs, uri, hc);
-        AccessToken token = xmoAuthHttpClient.getAccessTokenByRefreshToken(refreshToken);
-    }
+  参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getTokenByRefreshToken.php
 ```
-
 #### 3.  访问open api DEMO(以获取userprofile为例)
 ```java
-    public static void main(String[] args) throws Exception {
-        long cId = 179887661252608l;
-        String tokenId = "accessToken.accessTokenId";
-        List<Header> headers = new ArrayList<Header>();
+    参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getToken.php
+    相关代码如下:
+// 拿到token id
+$tokenId = $token->getAccessTokenId();
 
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("clientId", String.valueOf(cId)));
-        params.add(new BasicNameValuePair("token", tokenId));
+// 创建api client
+$xmApiClient = new XMApiClient($clientId, $tokenId);
+             
+// 获取nonce  随机数:分钟
+$nonce = XMUtil::getNonce();
 
-        String macKey = "accessToken.macKey";
+$path = $userProfilePath;
+$method = "GET";
+$params = array('token' => $tokenId, "clientId" => $clientId);
+             
+// 计算签名
+$sign = XMUtil::buildSignature($nonce, $method,  $xmApiClient->getApiHost(), $path, $params,$token->getMacKey());
 
-        String nonce = XMUtil.generateNonce();
-        String qs = URLEncodedUtils.format(params, "UTF-8");
-        String apiHost  "open.account.xiaomi.com";
-        String apiPath = "/user/profile";
-        String mac = XMUtil.getMacAccessTokenSignatureString(nonce, "GET", apiHost,apiPath, 
-                                                              qs,macKey, "HmacSHA1");
-        Header macHeader = XMUtil.buildMacRequestHead(tokenId, nonce, mac);
-
-        headers.add(macHeader);
-
-        XMApiHttpClient client = new XMApiHttpClient(cId, tokenId, new XMHttpClient());
-        JSONObject json = client.apiCall("/user/profile", params, headers, "GET");
-        System.out.println(json.toString());
-    }
+// 构建header
+$head =XMUtil::buildMacRequestHead($tokenId, $nonce, $sign);
+// 访问api
+$result = $xmApiClient->callApi($userProfilePath, $params, false, $head);
+// 返回json
+print '<br><br>';
+var_dump($result);
+print '<br><br>';
+$result = $xmApiClient->callApiSelfSign($userProfilePath, array(), $token->getMacKey());
+// 返回json
+var_dump($result);
 ```
