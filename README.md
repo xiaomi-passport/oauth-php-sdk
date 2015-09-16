@@ -29,8 +29,8 @@ http://dev.xiaomi.com/docs/passport/user_guide/
 ```
 #### 3.  访问open api DEMO(以获取userprofile为例)
 ```java
-    参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getToken.php
-    相关代码如下:
+参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getToken.php
+相关代码如下:
 // 拿到token id
 $tokenId = $token->getAccessTokenId();
 
