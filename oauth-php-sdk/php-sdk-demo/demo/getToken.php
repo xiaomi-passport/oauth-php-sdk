@@ -1,62 +1,61 @@
-<?php
-/**
- *   获取access token 示例
- * （1） 引导用户到小米的授权登陆页面
- *  （2）用户授权后会跳转到$redirectUri
- */
+# 小米帐号开放平台OAuth PHP SDK使用说明
 
-require_once('xiaomi.inc.php');
+------
+### 小米OAuth简介
+http://dev.xiaomi.com/docs/passport/oauth2/
 
-$code = $_GET["code"];
+### 小米帐号开放平台文档
+http://dev.xiaomi.com/docs/passport/user_guide/
 
-$redirectUri = $redirectHost.'/getToken.php';
+### PHP SDK说明
+> * php-sdk/httpclient/XMApiClient.php -- 基础Http请求封装
+> * php-sdk/httpclient/XMOAuthClient.php -- 针对OAuth授权流程相关http请求封装
+> * php-sdk/httpclient/XMHttpClient.php -- 针对api请求相关http请求封装
 
-if($code) {
-    $oauthClient = new XMOAuthClient($clientId, $clientSecret );
-    $oauthClient->setRedirectUri($redirectUri);
-    $token = $oauthClient->getAccessTokenByAuthorizationCode($code);
-    if($token) {
-        // 如果有错误，可以获取错误号码和错误描述
-        if  ($token->isError()) {
-            $errorNo = $token->getError();
-            $errordes = $token->getErrorDescription();
-            print "error no : ".$errorNo. "   error description : ".$errordes."<br>";
-        } else {
-            // mac access type
-            //  token有较长的有效期，可以存储下来，不必每次去获取token
-            var_dump($token);
-            // 拿到token id
-            $tokenId = $token->getAccessTokenId();
+### DEMO
+#### 1.  获取授权URL DEMO
+```PHP
+    参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getCode.php
+```
+复制授权url到浏览器, 输入用户名密码, 浏览器跳转到http://xiaomi.com?code=code-value
+复制code-value作为步骤2的输入
+#### 2.  获取accessToken DEMO
+```php
+  参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getToken.php
+```
+#### 3.  通过refreshToken 换取 accessToken DEMO
+```java
+  参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getTokenByRefreshToken.php
+```
+#### 3.  访问open api DEMO(以获取userprofile为例)
+```java
+    参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getToken.php
+    相关代码如下:
+// 拿到token id
+$tokenId = $token->getAccessTokenId();
 
-            // 创建api client
-            $xmApiClient = new XMApiClient($clientId, $tokenId);
+// 创建api client
+$xmApiClient = new XMApiClient($clientId, $tokenId);
              
-            // 获取nonce  随机数:分钟
-            $nonce = XMUtil::getNonce();
+// 获取nonce  随机数:分钟
+$nonce = XMUtil::getNonce();
 
-            $path = $userProfilePath;
-            $method = "GET";
-            $params = array('token' => $tokenId, "clientId" => $clientId);
+$path = $userProfilePath;
+$method = "GET";
+$params = array('token' => $tokenId, "clientId" => $clientId);
              
-            // 计算签名
-            $sign = XMUtil::buildSignature($nonce, $method,  $xmApiClient->getApiHost(), $path, $params, $token->getMacKey());
+// 计算签名
+$sign = XMUtil::buildSignature($nonce, $method,  $xmApiClient->getApiHost(), $path, $params,$token->getMacKey());
 
-            // 构建header
-            $head =XMUtil::buildMacRequestHead($tokenId, $nonce, $sign);
-            // 访问api
-            $result = $xmApiClient->callApi($userProfilePath, $params, false, $head);
-            // 返回json
-            print '<br><br>';
-            var_dump($result);
-            print '<br><br>';
-            $result = $xmApiClient->callApiSelfSign($userProfilePath, array(), $token->getMacKey());
-            // 返回json
-            var_dump($result);
-        }
-    }else {
-        print "Get token Error";
-    }
-} else {
-    print "Get code error : ".  $_GET["error"]. "  error description : ".  $_GET["error_description"];
-}
-?>
+// 构建header
+$head =XMUtil::buildMacRequestHead($tokenId, $nonce, $sign);
+// 访问api
+$result = $xmApiClient->callApi($userProfilePath, $params, false, $head);
+// 返回json
+print '<br><br>';
+var_dump($result);
+print '<br><br>';
+$result = $xmApiClient->callApiSelfSign($userProfilePath, array(), $token->getMacKey());
+// 返回json
+var_dump($result);
+```
