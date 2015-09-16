@@ -15,17 +15,15 @@ http://dev.xiaomi.com/docs/passport/user_guide/
 ### DEMO
 #### 1.  获取授权URL DEMO
 ```PHP
-    参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getCode.php
+参见[getCode.php](https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getCode.php)
 ```
-复制授权url到浏览器, 输入用户名密码, 浏览器跳转到http://xiaomi.com?code=code-value
-复制code-value作为步骤2的输入
 #### 2.  获取accessToken DEMO
 ```php
-  参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getToken.php
+参见[getToken.php](https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getToken.php)
 ```
 #### 3.  通过refreshToken 换取 accessToken DEMO
 ```java
-  参见https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getTokenByRefreshToken.php
+参见[getTokenByRefreshToken.php](https://github.com/xiaomipassport/oauth-php-sdk/blob/master/oauth-php-sdk/php-sdk-demo/demo/getTokenByRefreshToken.php)
 ```
 #### 3.  访问open api DEMO(以获取userprofile为例)
 ```java
