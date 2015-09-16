@@ -6,5 +6,4 @@
  **************************************************************************/
 $API_URL = 'https://open.account.xiaomi.com';
 $OAUTH2_URL = 'https://account.xiaomi.com';
-
 ?>
